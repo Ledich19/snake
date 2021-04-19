@@ -1,100 +1,147 @@
 'use strict'
 
-let canvas = document.querySelector('#game');
-let context = canvas.getContext('2d');
+document.querySelector('.player').addEventListener('click', () => {
+    document.querySelector('body').innerHTML = `
+    <div id="points1">0</div>
+    <canvas id="game" width="400" height="400"></canvas>
+    <div id="points2">0</div>
+`
 
-const grid = 16;
-let count = 0;
-let snake = {
-    x: 160,
-    y: 160,
-    dx: grid,
-    dy: 0,
-    cells: [],
-    maxCells: 4
-}
-let apple = {
-    x: 320,
-    y: 320
-};
+    let canvas = document.querySelector('#game');
+    let context = canvas.getContext('2d');
+    const grid = 16;
+    let count = 0;
 
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-}
+    let apple = {
+        x: 320,
+        y: 320
+    };
 
-function loop() {
-    requestAnimationFrame(loop);
-    if (++count < 8) {
-        return;
-    }
-    count = 0;
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    snake.x += snake.dx;
-    snake.y += snake.dy;
-
-    if (snake.x < 0) {
-        snake.x = canvas.width - grid;
-    } else if (snake.x >= canvas.width) {
-        snake.x = 0;
-    }
-    if (snake.y < 0) {
-        snake.y = canvas.height - grid;
-    } else if (snake.y >= canvas.height) {
-        snake.y = 0;
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
     }
 
-    snake.cells.unshift({
-        x: snake.x,
-        y: snake.y
-    });
+    class Snake {
+        constructor(x, y, color, pointAdress) {
+            this.x = x,
+                this.y = y,
+                this.dx = grid,
+                this.dy = 0,
+                this.cells = [],
+                this.maxCells = 4,
+                this.points = 0,
+                this.color = color
+            this.pointAddress = document.querySelector('#' + pointAdress);
 
-    if (snake.cells.length > snake.maxCells) {
-        snake.cells.pop();
-    }
-
-    context.fillStyle = 'red';
-    context.fillRect(apple.x, apple.y, grid - 1, grid - 1);
-
-    context.fillStyle = 'green';
-
-    snake.cells.forEach((cell, index) => {
-        context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
-
-        if (cell.x === apple.x && cell.y === apple.y) {
-            snake.maxCells++;
-            apple.x = getRandomInt(0, 25) * grid;
-            apple.y = getRandomInt(0, 25) * grid;
         }
 
-        for (let i = index + 1; i < snake.cells.length; i++) {
-            if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
-                snake.x = 160;
-                snake.y = 160;
-                snake.cells = [];
-                snake.maxCells = 4;
-                snake.dx = grid;
-                snake.dy = 0;
-                apple.x = getRandomInt(0, 25) * grid;
-                apple.y = getRandomInt(0, 25) * grid;
+        mowe() {
+            this.x += this.dx;
+            this.y += this.dy;
+
+            if (this.x < 0) {
+                snake1.x = canvas.width - grid;
+            } else if (this.x >= canvas.width) {
+                this.x = 0;
+            }
+            if (this.y < 0) {
+                this.y = canvas.height - grid;
+            } else if (this.y >= canvas.height) {
+                this.y = 0;
+            }
+
+            this.cells.unshift({
+                x: this.x,
+                y: this.y
+            });
+
+            if (this.cells.length > this.maxCells) {
+                this.cells.pop();
             }
         }
-    });
-}
 
-document.addEventListener('keydown', function (e) {
-    if (e.which === 37 && snake.dx === 0) {
-        snake.dx = -grid;
-        snake.dy = 0;
-    } else if (e.which === 38 && snake.dy === 0) {
-        snake.dy = -grid;
-        snake.dx = 0;
-    } else if (e.which === 39 && snake.dx === 0) {
-        snake.dx = grid;
-        snake.dy = 0;
-    } else if (e.which === 40 && snake.dy === 0) {
-        snake.dy = grid;
-        snake.dx = 0;
+        render() {
+            context.fillStyle = this.color;
+            this.cells.forEach((cell, index) => {
+                context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
+
+                if (cell.x === apple.x && cell.y === apple.y) {
+                    this.maxCells++;
+                    this.points += 10;
+                    this.pointAddress.innerHTML = this.points;
+                    apple.x = getRandomInt(0, 25) * grid;
+                    apple.y = getRandomInt(0, 25) * grid;
+                }
+
+                for (let i = index + 1; i < this.cells.length; i++) {
+                    if (cell.x === this.cells[i].x && cell.y === this.cells[i].y) {
+                        this.x = 160;
+                        this.y = 160;
+                        this.cells = [];
+                        this.maxCells = 4;
+                        this.dx = grid;
+                        this.dy = 0;
+                        this.points = 0;
+                        apple.x = getRandomInt(0, 25) * grid;
+                        apple.y = getRandomInt(0, 25) * grid;
+                    }
+                }
+            });
+        }
+
     }
-});
 
-requestAnimationFrame(loop);
+    const snake1 = new Snake(160, 160, 'green', 'points1');
+    const snake2 = new Snake(320, 320, 'blue', 'points2');
+
+    function loop() {
+        requestAnimationFrame(loop);
+        if (++count < 8) {
+            return;
+        }
+        count = 0;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        snake1.mowe();
+        snake2.mowe();
+        snake1.render();
+        snake2.render();
+
+        context.fillStyle = 'red';
+        context.fillRect(apple.x, apple.y, grid - 1, grid - 1);
+
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.which === 37 && snake1.dx === 0) {
+            snake1.dx = -grid;
+            snake1.dy = 0;
+        } else if (e.which === 38 && snake1.dy === 0) {
+            snake1.dy = -grid;
+            snake1.dx = 0;
+        } else if (e.which === 39 && snake1.dx === 0) {
+            snake1.dx = grid;
+            snake1.dy = 0;
+        } else if (e.which === 40 && snake1.dy === 0) {
+            snake1.dy = grid;
+            snake1.dx = 0;
+        }
+
+        if (e.which === 65 && snake2.dx === 0) {
+            snake2.dx = -grid;
+            snake2.dy = 0;
+        } else if (e.which === 87 && snake2.dy === 0) {
+            snake2.dy = -grid;
+            snake2.dx = 0;
+        } else if (e.which === 68 && snake2.dx === 0) {
+            snake2.dx = grid;
+            snake2.dy = 0;
+        } else if (e.which === 83 && snake2.dy === 0) {
+            snake2.dy = grid;
+            snake2.dx = 0;
+        }
+    });
+
+    requestAnimationFrame(loop);
+
+})

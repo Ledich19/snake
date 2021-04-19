@@ -14,3 +14,12 @@ body {
 canvas {
     border: 1px solid white;
 }
+#points1,#points2  {
+    /* background-color: antiquewhite; */
+    height: 30px;
+    width: auto;
+    font-size: 30px;
+    font-weight: bold;
+    color:antiquewhite;
+    align-self: flex-start;
+}
